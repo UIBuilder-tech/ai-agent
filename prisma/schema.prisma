@@ -1,0 +1,148 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mongodb"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id             String          @id @default(auto()) @map("_id") @db.ObjectId
+  email          String          @unique
+  name           String?
+  password       String
+  agents         Agent[]
+  discoverAgents DiscoverAgent[]
+  agentChats     AgentChat[]
+  createdAt      DateTime        @default(now())
+  updatedAt      DateTime        @updatedAt
+}
+
+model Agent {
+  id             String          @id @default(auto()) @map("_id") @db.ObjectId
+  name           String
+  displayName    String
+  userId         String          @db.ObjectId
+  user           User            @relation(fields: [userId], references: [id])
+  trainingData   TrainingData[]
+  messages       Message[]
+  leads          Lead[]
+  visualSettings VisualSettings?
+  analytics      Analytics?
+  chatHash       String          @unique
+  status         String          @default("awaiting_message")
+  createdAt      DateTime        @default(now())
+  updatedAt      DateTime        @updatedAt
+}
+
+model TrainingData {
+  id             String   @id @default(auto()) @map("_id") @db.ObjectId
+  agentId        String   @db.ObjectId
+  agent          Agent    @relation(fields: [agentId], references: [id])
+  type           String
+  content        String
+  filename       String?
+  size           Int?
+  characterCount Int      @default(0)
+  status         String
+  createdAt      DateTime @default(now())
+}
+
+model Message {
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  agentId   String   @db.ObjectId
+  agent     Agent    @relation(fields: [agentId], references: [id])
+  content   String
+  role      String
+  createdAt DateTime @default(now())
+}
+
+model Lead {
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  agentId   String   @db.ObjectId
+  agent     Agent    @relation(fields: [agentId], references: [id])
+  name      String   @default("Anonymous")
+  email     String
+  phone     String?
+  source    String
+  createdAt DateTime @default(now())
+}
+
+model VisualSettings {
+  id           String   @id @default(auto()) @map("_id") @db.ObjectId
+  agentId      String   @unique @db.ObjectId
+  agent        Agent    @relation(fields: [agentId], references: [id])
+  avatar       String?
+  theme        String   @default("light")
+  primaryColor String   @default("#3b82f6")
+  isAutoOpen   Boolean  @default(false)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+}
+
+model Analytics {
+  id           String   @id @default(auto()) @map("_id") @db.ObjectId
+  agentId      String   @unique @db.ObjectId
+  agent        Agent    @relation(fields: [agentId], references: [id])
+  messageCount Int      @default(0)
+  leadCount    Int      @default(0)
+  usageStats   Json
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+}
+
+model DiscoverAgent {
+  id            String    @id @default(auto()) @map("_id") @db.ObjectId
+  createdAt     DateTime  @default(now())
+  userId        String    @db.ObjectId
+  user          User      @relation(fields: [userId], references: [id])
+  title         String
+  slug          String    @unique
+  subtitle      String?
+  description   String
+  resources     Json?
+  published     Boolean   @default(false)
+  status        String    @default("pending")
+  chatHash      String    @unique
+  updatedAt     DateTime? @updatedAt
+  username      String
+  socialLinks   Json
+  profileAvatar String?
+  category      String
+  countMessages Int       @default(0)
+}
+
+model AgentChat {
+  id               String   @id @default(auto()) @map("_id") @db.ObjectId
+  createdAt        DateTime @default(now())
+  userId           String   @db.ObjectId
+  user             User     @relation(fields: [userId], references: [id])
+  name             String
+  prompt           String
+  assistantId      String?
+  chatHash         String   @unique
+  domain           String   @default("")
+  color            String   @default("#4c3724")
+  suggestionList   String[] @default([])
+  startingMessage  String?
+  botName          String   @default("Chat Bot")
+  model            String   @default("gpt-3.5")
+  vibeResponse     String   @default("neutral")
+  status           String?
+  leadEmail        Boolean  @default(true)
+  leadName         Boolean  @default(true)
+  leadPhone        Boolean  @default(true)
+  leadText         String?
+  profileAvatar    String?
+  mode             String   @default("light")
+  public           Boolean  @default(false)
+  overloaded       Boolean  @default(false)
+  vectorStoreId    String?
+  showHumanButton  Boolean  @default(true)
+  widgetOpened     Boolean  @default(false)
+  addonRemoveBrand Boolean  @default(false)
+  leadForm         Json?
+  humanForm        Json?
+  addonCustomBrand Json?
+}
