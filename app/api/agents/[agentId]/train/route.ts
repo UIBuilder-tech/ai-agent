@@ -65,7 +65,7 @@ export async function POST(
     fetch("https://api.openai.com/v1/assistants",{
       method:"POST",
       headers:{
-      "Authorization": `Bearer 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`,
+      "Authorization": `Bearer ${process.env.OPENAI_API_KEY}`,
       "Content-Type": "application/json",
       'OpenAI-Beta': 'assistants=v2'
       },
