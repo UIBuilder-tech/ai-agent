@@ -104,7 +104,7 @@ export default async function Home() {
             </CreateAgentDialog>
 
             {agents.map((agent) => (
-              <Link key={agent.id} href={`/agents/${agent.id}`}>
+              <Link key={agent.id} href={`/agents/${agent.id}/chat`}>
                 <Card className="p-6 hover:shadow-lg transition-shadow aspect-[5/3]">
                   <h3 className="font-semibold mb-2">{agent.name}</h3>
                   <p className="text-sm text-gray-500">ID: {agent.chatHash}</p>

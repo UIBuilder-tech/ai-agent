@@ -17,6 +17,7 @@ model User {
   agentChats     AgentChat[]
   createdAt      DateTime        @default(now())
   updatedAt      DateTime        @updatedAt
+  threads    Thread[]
 }
 
 model Agent {
@@ -32,8 +33,12 @@ model Agent {
   analytics      Analytics?
   chatHash       String          @unique
   status         String          @default("awaiting_message")
+  assistantId    String?         // OpenAI Assistant ID
+  model          String?         // Model used by the assistant
+  instructions   String?         // Assistant instructions
   createdAt      DateTime        @default(now())
   updatedAt      DateTime        @updatedAt
+  threads    Thread[]
 }
 
 model TrainingData {
@@ -56,6 +61,8 @@ model Message {
   content   String
   role      String
   createdAt DateTime @default(now())
+  threadId    String?  // OpenAI thread ID
+  messageId   String?  // OpenAI message ID
 }
 
 model Lead {
@@ -145,4 +152,15 @@ model AgentChat {
   leadForm         Json?
   humanForm        Json?
   addonCustomBrand Json?
+}
+
+model Thread {
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  threadId  String   @unique // OpenAI thread ID
+  userId    String   @db.ObjectId
+  user      User     @relation(fields: [userId], references: [id])
+  agentId   String   @db.ObjectId
+  agent     Agent    @relation(fields: [agentId], references: [id])
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
